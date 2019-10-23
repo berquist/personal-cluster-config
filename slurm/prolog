@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+# export FOO=foo
+# if [[ -z "${CUDA_VISIBLE_DEVICES}" ]]; then
+#     echo "GPUs are unavailable!"
+#     export CUDA_VISIBLE_DEVICES=-1
+#     export MEEP=meep
+# fi
+env | sort

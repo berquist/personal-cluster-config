@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+# echo "print =============================================================================="
+# echo "print In task prolog"
+# echo "print CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES"
+# echo "print SLURM_JOB_GPUS = $SLURM_JOB_GPUS"
+# if [ X"$CUDA_VISIBLE_DEVICES" = "X" ]; then
+#     echo "print CUDA_VISIBLE_DEVICES is unset (old)"
+# fi
+# if [ X"$SLURM_JOB_GPUS" = "X" ]; then
+#     echo "print SLURM_JOB_GPUS is unset (old)"
+# fi
+# if [[ -z $CUDA_VISIBLE_DEVICES ]]; then
+#     echo "print CUDA_VISIBLE_DEVICES is unset (new)"
+# fi
+if [[ -z $SLURM_JOB_GPUS ]]; then
+    # echo "print SLURM_JOB_GPUS is unset (new)"
+    echo export CUDA_VISIBLE_DEVICES=-1
+fi
+# echo "print CUDA_VISIBLE_DEVICES = $CUDA_VISIBLE_DEVICES"
+# echo "print ------------------------------------------------------------------------------"
+# _env=$(env | sort)
+# _env=$(env)
+# echo "print $_env"
+# echo "print ------------------------------------------------------------------------------"
