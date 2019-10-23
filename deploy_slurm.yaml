@@ -18,6 +18,9 @@
         owner: "{{ owner }}"
         group: "{{ group }}"
         mode: '0644'
+      notify:
+        - restart slurmd
+        - restart slurmctld
     - name: copy slurmdbd.conf
       copy:
         src: slurm/slurmdbd.conf
@@ -25,6 +28,8 @@
         owner: "{{ owner }}"
         group: "{{ group }}"
         mode: '0644'
+      notify:
+        - restart slurmdbd
     - name: copy gres.conf
       copy:
         src: slurm/gres.conf
@@ -32,6 +37,9 @@
         owner: "{{ owner }}"
         group: "{{ group }}"
         mode: '0644'
+      notify:
+        - restart slurmd
+        - restart slurmctld
     - name: copy prolog
       copy:
         src: slurm/prolog
@@ -47,7 +55,17 @@
         group: "{{ group }}"
         mode: '0755'
 
-  # - name: restart slurmd
-  #   systemd:
-  #     name: slurmd
-  #     state: restarted
+  handlers:
+    # service automatically uses `systemd`
+    - name: restart slurmd
+      service:
+        name: slurmd
+        state: restarted
+    - name: restart slurmctld
+      service:
+        name: slurmctld
+        state: restarted
+    - name: restart slurmdbd
+      service:
+        name: slurmdbd
+        state: restarted
