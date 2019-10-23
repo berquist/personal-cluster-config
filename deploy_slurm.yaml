@@ -1,0 +1,21 @@
+---
+- name: copy over SLURM config
+  hosts: osmium
+  remote_user: eric
+  become: yes
+  become_method: sudo
+  become_user: root
+  vars:
+    slurm_conf_dir: "/etc/slurm-llnl"
+
+  tasks:
+    - name: copy slurm.conf
+      copy: src=slurm/slurm.conf dest={{ slurm_conf_dir }}
+    - name: copy slurmdbd.conf
+      copy: src=slurm/slurmdbd.conf dest={{ slurm_conf_dir }}
+    - name: copy gres.conf
+      copy: src=slurm/gres.conf dest={{ slurm_conf_dir }}
+    - name: copy prolog
+      copy: src=slurm/prolog dest={{ slurm_conf_dir }}
+    - name: copy task_prolog
+      copy: src=slurm/task_prolog dest={{ slurm_conf_dir }}
