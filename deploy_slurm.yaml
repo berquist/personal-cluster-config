@@ -25,9 +25,9 @@
       copy:
         src: slurm/slurmdbd.conf
         dest: "{{ slurm_conf_dir }}"
-        owner: "{{ owner }}"
-        group: "{{ group }}"
-        mode: '0644'
+        owner: slurm
+        group: slurm
+        mode: '0600'
       notify:
         - restart slurmdbd
     - name: copy gres.conf
