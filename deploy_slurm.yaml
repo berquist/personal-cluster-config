@@ -40,6 +40,16 @@
       notify:
         - restart slurmd
         - restart slurmctld
+    - name: copy cgroup.conf
+      copy:
+        src: slurm/cgroup.conf
+        dest: "{{ slurm_conf_dir }}"
+        owner: "{{ owner }}"
+        group: "{{ group }}"
+        mode: '0644'
+      notify:
+        - restart slurmd
+        - restart slurmctld
     - name: copy prolog
       copy:
         src: slurm/prolog
