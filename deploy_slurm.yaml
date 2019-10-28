@@ -1,7 +1,6 @@
 ---
 - name: copy over SLURM config
-  hosts: osmium
-  remote_user: eric
+  hosts: all
   become: yes
   become_method: sudo
   become_user: root
