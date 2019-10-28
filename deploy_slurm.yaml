@@ -18,8 +18,12 @@
         group: "{{ main_conf_group }}"
         mode: '0644'
       notify:
-        - restart slurmd
-        - restart slurmctld
+        # This won't work for certain parameters that require actual
+        # restarting of the daemons.
+        #
+        # - restart slurmd
+        # - restart slurmctld
+        - issue reconfigure command
     - name: copy slurmdbd.conf
       copy:
         src: slurm/slurmdbd.conf
@@ -37,8 +41,9 @@
         group: "{{ main_conf_group }}"
         mode: '0644'
       notify:
-        - restart slurmd
-        - restart slurmctld
+        # - restart slurmd
+        # - restart slurmctld
+        - issue reconfigure command
     - name: copy cgroup.conf
       copy:
         src: slurm/cgroup.conf
@@ -47,8 +52,9 @@
         group: "{{ main_conf_group }}"
         mode: '0644'
       notify:
-        - restart slurmd
-        - restart slurmctld
+        # - restart slurmd
+        # - restart slurmctld
+        - issue reconfigure command
     - name: copy prolog
       copy:
         src: slurm/prolog
@@ -78,3 +84,5 @@
       service:
         name: slurmdbd
         state: restarted
+    - name: issue reconfigure command
+      command: scontrol reconfigure
