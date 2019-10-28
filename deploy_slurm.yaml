@@ -6,16 +6,16 @@
   become_user: root
   vars:
     slurm_conf_dir: "/etc/slurm-llnl"
-    owner: root
-    group: root
+    main_conf_owner: root
+    main_conf_group: root
 
   tasks:
     - name: copy slurm.conf
       copy:
         src: slurm/slurm.conf
         dest: "{{ slurm_conf_dir }}"
-        owner: "{{ owner }}"
-        group: "{{ group }}"
+        owner: "{{ main_conf_owner }}"
+        group: "{{ main_conf_group }}"
         mode: '0644'
       notify:
         - restart slurmd
@@ -33,8 +33,8 @@
       copy:
         src: slurm/gres.conf
         dest: "{{ slurm_conf_dir }}"
-        owner: "{{ owner }}"
-        group: "{{ group }}"
+        owner: "{{ main_conf_owner }}"
+        group: "{{ main_conf_group }}"
         mode: '0644'
       notify:
         - restart slurmd
@@ -43,8 +43,8 @@
       copy:
         src: slurm/cgroup.conf
         dest: "{{ slurm_conf_dir }}"
-        owner: "{{ owner }}"
-        group: "{{ group }}"
+        owner: "{{ main_conf_owner }}"
+        group: "{{ main_conf_group }}"
         mode: '0644'
       notify:
         - restart slurmd
@@ -53,15 +53,15 @@
       copy:
         src: slurm/prolog
         dest: "{{ slurm_conf_dir }}"
-        owner: "{{ owner }}"
-        group: "{{ group }}"
+        owner: "{{ main_conf_owner }}"
+        group: "{{ main_conf_group }}"
         mode: '0755'
     - name: copy task_prolog
       copy:
         src: slurm/task_prolog
         dest: "{{ slurm_conf_dir }}"
-        owner: "{{ owner }}"
-        group: "{{ group }}"
+        owner: "{{ main_conf_owner }}"
+        group: "{{ main_conf_group }}"
         mode: '0755'
 
   handlers:
