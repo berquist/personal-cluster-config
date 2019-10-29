@@ -7,15 +7,13 @@
   hosts: all
   become: yes
   become_method: sudo
-  become_user: root
+  become_user: eric
 
   tasks:
     - name: install MUNGE
       aur:
         name: munge
-        use: makepkg
 
     - name: install SLURM
       aur:
         name: slurm-llnl
-        use: makepkg
