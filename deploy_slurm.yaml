@@ -2,8 +2,6 @@
 - name: copy over SLURM config
   hosts: all
   become: yes
-  become_method: sudo
-  become_user: root
   vars:
     slurm_conf_dir: "/etc/slurm-llnl"
     main_conf_owner: root
