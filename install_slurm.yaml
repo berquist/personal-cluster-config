@@ -1,0 +1,21 @@
+---
+- hosts: all
+  roles:
+    - victorbrca.ansible_aur_install
+
+- name: install SLURM and dependencies
+  hosts: all
+  become: yes
+  become_method: sudo
+  become_user: root
+
+  tasks:
+    - name: install MUNGE
+      aur:
+        name: munge
+        use: makepkg
+
+    - name: install SLURM
+      aur:
+        name: slurm-llnl
+        use: makepkg
