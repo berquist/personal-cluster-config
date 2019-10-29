@@ -3,15 +3,16 @@
   hosts: all
   become: yes
   vars:
-    slurm_conf_dir: "/etc/slurm-llnl"
+    slurm_conf_source_dir: "slurm"
+    slurm_conf_dest_dir: "/etc/slurm-llnl"
     main_conf_owner: root
     main_conf_group: root
 
   tasks:
     - name: copy slurm.conf
       copy:
-        src: slurm/slurm.conf
-        dest: "{{ slurm_conf_dir }}"
+        src: "{{ slurm_conf_source_dir }}/slurm.conf"
+        dest: "{{ slurm_conf_dest_dir }}"
         owner: "{{ main_conf_owner }}"
         group: "{{ main_conf_group }}"
         mode: '0644'
@@ -24,8 +25,8 @@
         - issue reconfigure command
     - name: copy slurmdbd.conf
       copy:
-        src: slurm/slurmdbd.conf
-        dest: "{{ slurm_conf_dir }}"
+        src: "{{ slurm_conf_source_dir }}/slurmdbd.conf"
+        dest: "{{ slurm_conf_dest_dir }}"
         owner: slurm
         group: slurm
         mode: '0600'
@@ -33,8 +34,8 @@
         - restart slurmdbd
     - name: copy gres.conf
       copy:
-        src: slurm/gres.conf
-        dest: "{{ slurm_conf_dir }}"
+        src: "{{ slurm_conf_source_dir }}/gres.conf"
+        dest: "{{ slurm_conf_dest_dir }}"
         owner: "{{ main_conf_owner }}"
         group: "{{ main_conf_group }}"
         mode: '0644'
@@ -44,8 +45,8 @@
         - issue reconfigure command
     - name: copy cgroup.conf
       copy:
-        src: slurm/cgroup.conf
-        dest: "{{ slurm_conf_dir }}"
+        src: "{{ slurm_conf_source_dir }}/cgroup.conf"
+        dest: "{{ slurm_conf_dest_dir }}"
         owner: "{{ main_conf_owner }}"
         group: "{{ main_conf_group }}"
         mode: '0644'
@@ -55,15 +56,15 @@
         - issue reconfigure command
     - name: copy prolog
       copy:
-        src: slurm/prolog
-        dest: "{{ slurm_conf_dir }}"
+        src: "{{ slurm_conf_source_dir }}/prolog"
+        dest: "{{ slurm_conf_dest_dir }}"
         owner: "{{ main_conf_owner }}"
         group: "{{ main_conf_group }}"
         mode: '0755'
     - name: copy task_prolog
       copy:
-        src: slurm/task_prolog
-        dest: "{{ slurm_conf_dir }}"
+        src: "{{ slurm_conf_source_dir }}/task_prolog"
+        dest: "{{ slurm_conf_dest_dir }}"
         owner: "{{ main_conf_owner }}"
         group: "{{ main_conf_group }}"
         mode: '0755'
