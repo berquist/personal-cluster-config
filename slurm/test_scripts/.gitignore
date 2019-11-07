@@ -1,1 +1,2 @@
-*.slurmout
+*.slurmerr*
+*.slurmout*

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
 ansible-playbook deploy_slurm.yaml \
-                 --ask-become-pass \
-                 --inventory=./inventory
+                 --inventory=./inventory.yaml \
+                 --become \
+                 --ask-become-pass

@@ -1,0 +1,20 @@
+---
+all:
+  children:
+    submit:
+      hosts:
+    compute:
+      hosts:
+        osmium:
+          ansible_host: 172.22.162.8
+          ansible_user: eric
+    controller:
+      hosts:
+        osmium:
+          ansible_host: 172.22.162.8
+          ansible_user: eric
+    db:
+      hosts:
+        osmium:
+          ansible_host: 172.22.162.8
+          ansible_user: eric

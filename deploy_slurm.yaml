@@ -1,7 +1,9 @@
 ---
 - name: copy over SLURM config
-  hosts: all
-  become: yes
+  hosts:
+    - submit
+    - compute
+    - controller
   vars:
     slurm_conf_source_dir: "slurm"
     slurm_conf_dest_dir: "/etc/slurm-llnl"
@@ -9,13 +11,19 @@
     main_conf_group: root
 
   tasks:
+    - name: ensure destination dir exists
+      file:
+        path: "{{ slurm_conf_dest_dir }}"
+        state: directory
+        owner: "{{ main_conf_owner }}"
+        group: "{{ main_conf_group }}"
     - name: copy slurm.conf
       copy:
         src: "{{ slurm_conf_source_dir }}/slurm.conf"
         dest: "{{ slurm_conf_dest_dir }}"
         owner: "{{ main_conf_owner }}"
         group: "{{ main_conf_group }}"
-        mode: '0644'
+        mode: '0444'
       notify:
         # This won't work for certain parameters that require actual
         # restarting of the daemons.
@@ -23,22 +31,16 @@
         # - restart slurmd
         # - restart slurmctld
         - issue reconfigure command
-    - name: copy slurmdbd.conf
-      copy:
-        src: "{{ slurm_conf_source_dir }}/slurmdbd.conf"
-        dest: "{{ slurm_conf_dest_dir }}"
-        owner: slurm
-        group: slurm
-        mode: '0600'
-      notify:
-        - restart slurmdbd
     - name: copy gres.conf
+      # TODO how to handle different compute nodes needing different GRES
+      # specs?
       copy:
         src: "{{ slurm_conf_source_dir }}/gres.conf"
         dest: "{{ slurm_conf_dest_dir }}"
         owner: "{{ main_conf_owner }}"
         group: "{{ main_conf_group }}"
-        mode: '0644'
+        mode: '0444'
+      when: inventory_hostname in groups['compute']
       notify:
         # - restart slurmd
         # - restart slurmctld
@@ -49,7 +51,8 @@
         dest: "{{ slurm_conf_dest_dir }}"
         owner: "{{ main_conf_owner }}"
         group: "{{ main_conf_group }}"
-        mode: '0644'
+        mode: '0444'
+      when: inventory_hostname not in groups['submit']
       notify:
         # - restart slurmd
         # - restart slurmctld
@@ -61,6 +64,7 @@
         owner: "{{ main_conf_owner }}"
         group: "{{ main_conf_group }}"
         mode: '0755'
+      # TODO when?
     - name: copy task_prolog
       copy:
         src: "{{ slurm_conf_source_dir }}/task_prolog"
@@ -68,9 +72,9 @@
         owner: "{{ main_conf_owner }}"
         group: "{{ main_conf_group }}"
         mode: '0755'
+      when: inventory_hostname in groups['compute']
 
   handlers:
-    # service automatically uses `systemd`
     - name: restart slurmd
       service:
         name: slurmd
@@ -79,9 +83,39 @@
       service:
         name: slurmctld
         state: restarted
+    - name: issue reconfigure command
+      command: scontrol reconfigure
+
+- name: copy over SLURM DB config
+  hosts: db
+  vars:
+    slurm_conf_source_dir: "slurm"
+    slurm_conf_dest_dir: "/etc/slurm-llnl"
+    main_conf_owner: root
+    main_conf_group: root
+
+  tasks:
+    - name: ensure destination dir exists
+      file:
+        path: "{{ slurm_conf_dest_dir }}"
+        state: directory
+        owner: "{{ main_conf_owner }}"
+        group: "{{ main_conf_group }}"
+    - name: copy slurmdbd.conf
+      copy:
+        src: "{{ slurm_conf_source_dir }}/slurmdbd.conf"
+        dest: "{{ slurm_conf_dest_dir }}"
+        owner: slurm
+        group: slurm
+        mode: '0400'
+      notify:
+        # - restart slurmdbd
+        - issue DB reconfigure command
+
+  handlers:
     - name: restart slurmdbd
       service:
         name: slurmdbd
         state: restarted
-    - name: issue reconfigure command
-      command: scontrol reconfigure
+    - name: issue DB reconfigure command
+      command: sacctmgr reconfigure
