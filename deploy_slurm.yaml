@@ -4,12 +4,9 @@
     - submit
     - compute
     - controller
-  vars:
-    slurm_conf_source_dir: "slurm"
-    slurm_conf_dest_dir: "/etc/slurm-llnl"
-    main_conf_owner: root
-    main_conf_group: root
-
+  gather_facts: no
+  vars_files:
+    - common_variables.yaml
   tasks:
     - name: ensure destination dir exists
       file:
@@ -23,7 +20,7 @@
         dest: "{{ slurm_conf_dest_dir }}"
         owner: "{{ main_conf_owner }}"
         group: "{{ main_conf_group }}"
-        mode: '0444'
+        mode: "0444"
       notify:
         # This won't work for certain parameters that require actual
         # restarting of the daemons.
@@ -39,7 +36,7 @@
         dest: "{{ slurm_conf_dest_dir }}"
         owner: "{{ main_conf_owner }}"
         group: "{{ main_conf_group }}"
-        mode: '0444'
+        mode: "0444"
       when: inventory_hostname in groups['compute']
       notify:
         # - restart slurmd
@@ -51,7 +48,7 @@
         dest: "{{ slurm_conf_dest_dir }}"
         owner: "{{ main_conf_owner }}"
         group: "{{ main_conf_group }}"
-        mode: '0444'
+        mode: "0444"
       when: inventory_hostname not in groups['submit']
       notify:
         # - restart slurmd
@@ -63,7 +60,7 @@
         dest: "{{ slurm_conf_dest_dir }}"
         owner: "{{ main_conf_owner }}"
         group: "{{ main_conf_group }}"
-        mode: '0755'
+        mode: "0755"
       # TODO when?
     - name: copy task_prolog
       copy:
@@ -71,7 +68,7 @@
         dest: "{{ slurm_conf_dest_dir }}"
         owner: "{{ main_conf_owner }}"
         group: "{{ main_conf_group }}"
-        mode: '0755'
+        mode: "0755"
       when: inventory_hostname in groups['compute']
 
   handlers:
@@ -88,11 +85,8 @@
 
 - name: copy over SLURM DB config
   hosts: db
-  vars:
-    slurm_conf_source_dir: "slurm"
-    slurm_conf_dest_dir: "/etc/slurm-llnl"
-    main_conf_owner: root
-    main_conf_group: root
+  vars_files:
+    - common_variables.yaml
 
   tasks:
     - name: ensure destination dir exists
