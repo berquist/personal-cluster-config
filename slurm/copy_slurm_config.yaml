@@ -22,13 +22,7 @@
         owner: "{{ main_conf_owner }}"
         group: "{{ main_conf_group }}"
         mode: "0444"
-      notify:
-        # This won't work for certain parameters that require actual
-        # restarting of the daemons.
-        #
-        # - restart slurmd
-        # - restart slurmctld
-        - issue reconfigure command
+      register: res_slurm_conf
     - name: generate gres.conf
       shell: |
         set -euo pipefail
@@ -51,10 +45,7 @@
         group: "{{ main_conf_group }}"
         mode: "0444"
       when: inventory_hostname not in groups['submit']
-      notify:
-        # - restart slurmd
-        # - restart slurmctld
-        - issue reconfigure command
+      register: res_cgroup_conf
     - name: copy prolog
       copy:
         src: "{{ slurm_conf_source_dir }}/prolog"
@@ -71,21 +62,46 @@
         group: "{{ main_conf_group }}"
         mode: "0755"
       when: inventory_hostname in groups['compute']
-
-  handlers:
-    - name: restart slurmd
+    - name: copy epilog_slurmctld
+      copy:
+        src: "{{ slurm_conf_source_dir }}/epilog_slurmctld"
+        dest: "{{ slurm_conf_dest_dir }}"
+        owner: "{{ main_conf_owner }}"
+        group: "{{ main_conf_group }}"
+        mode: "0755"
+      # TODO when?
+    - name: ensure compute daemons are started
+      service:
+        name: slurmd
+        state: started
+      register: just_started_slurmd
+      when: inventory_hostname in groups['compute']
+    - name: ensure controller daemons are started
+      service:
+        name: slurmctld
+        state: started
+      register: just_started_slurmctld
+      when: inventory_hostname in groups['controller']
+    - name: restart compute daemons # noqa 503
       service:
         name: slurmd
         state: restarted
-    - name: restart slurmctld
+      when:
+        - res_slurm_conf.changed or res_cgroup_conf.changed or res_gres_conf.changed
+        - inventory_hostname in groups['compute']
+        - not just_started_slurmd.changed
+    - name: restart controller daemons # noqa 503
       service:
         name: slurmctld
         state: restarted
-    - name: issue reconfigure command
-      command: scontrol reconfigure
+      when:
+        - res_slurm_conf.changed or res_cgroup_conf.changed or res_gres_conf.changed
+        - inventory_hostname in groups['controller']
+        - not just_started_slurmctld.changed
 
 - name: copy over SLURM DB config
   hosts: db
+  gather_facts: no
   vars_files:
     - common_variables.yaml
 
@@ -102,15 +118,17 @@
         dest: "{{ slurm_conf_dest_dir }}"
         owner: slurm
         group: slurm
-        mode: '0400'
-      notify:
-        # - restart slurmdbd
-        - issue DB reconfigure command
-
-  handlers:
-    - name: restart slurmdbd
+        mode: "0400"
+      register: res_slurmdbd_conf
+    - name: ensure db daemon is started
+      service:
+        name: slurmdbd
+        state: started
+      register: just_started_slurmdbd
+    - name: restart db daemon # noqa 503
       service:
         name: slurmdbd
         state: restarted
-    - name: issue DB reconfigure command
-      command: sacctmgr reconfigure
+      when:
+        - res_slurmdbd_conf.changed
+        - not just_started_slurmdbd.changed
