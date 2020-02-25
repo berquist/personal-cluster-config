@@ -7,6 +7,7 @@
   gather_facts: no
   vars_files:
     - common_variables.yaml
+
   tasks:
     - name: ensure destination dir exists
       file:
@@ -28,20 +29,20 @@
         # - restart slurmd
         # - restart slurmctld
         - issue reconfigure command
-    - name: copy gres.conf
-      # TODO how to handle different compute nodes needing different GRES
-      # specs?
-      copy:
-        src: "{{ slurm_conf_source_dir }}/gres.conf"
-        dest: "{{ slurm_conf_dest_dir }}"
-        owner: "{{ main_conf_owner }}"
-        group: "{{ main_conf_group }}"
-        mode: "0444"
+    - name: generate gres.conf
+      shell: |
+        set -euo pipefail
+        x=0
+        for i in $(nvidia-smi -L | awk -F: '{ print tolower($2) }' | \
+        sed -e 's/^ geforce//g' -e 's/ //g' -e 's/(.*$//g')
+        do
+          echo "Name=gpu Type=$i File=/dev/nvidia$((x++))"
+        done > {{ slurm_conf_dest_dir }}/gres.conf
+        chmod 0444 {{ slurm_conf_dest_dir }}/gres.conf
       when: inventory_hostname in groups['compute']
-      notify:
-        # - restart slurmd
-        # - restart slurmctld
-        - issue reconfigure command
+      register: res_gres_conf
+      args:
+        executable: /bin/bash
     - name: copy cgroup.conf
       copy:
         src: "{{ slurm_conf_source_dir }}/cgroup.conf"
