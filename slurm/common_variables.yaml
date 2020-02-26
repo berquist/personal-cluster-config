@@ -1,5 +1,6 @@
 ---
-slurm_conf_source_dir: "etc/slurm-llnl"
-slurm_conf_dest_dir: "/etc/slurm-llnl"
-main_conf_owner: root
 main_conf_group: root
+main_conf_owner: root
+slurm_conf_dest_dir: "/etc/slurm-llnl"
+slurm_conf_source_dir: "etc/slurm-llnl"
+slurm_log_dir: "/var/log/slurm-llnl"

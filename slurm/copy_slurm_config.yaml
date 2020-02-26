@@ -63,9 +63,9 @@
         mode: "0755"
       when: inventory_hostname in groups['compute']
     - name: copy epilog_slurmctld
-      copy:
-        src: "{{ slurm_conf_source_dir }}/slurmctld_epilog"
-        dest: "{{ slurm_conf_dest_dir }}"
+      template:
+        src: "{{ slurm_conf_source_dir }}/slurmctld_epilog.j2"
+        dest: "{{ slurm_conf_dest_dir }}/slurmctld_epilog"
         owner: "{{ main_conf_owner }}"
         group: "{{ main_conf_group }}"
         mode: "0755"
