@@ -1,20 +1,24 @@
 #!/usr/bin/env bash
 
-# export PATH=/bin:/home/slurm/linux/bin
-# LOG=/home/slurm/linux/log/logslurmepilog
-LOG=/tmp/logslurmepilog
+# Implement automatic requeue behavior for jobs that exit with a return code
+# of 99. Unlike the example given in
+# https://slurm.schedmd.com/faq.html#reqspec, don't hold the job, resubmit it
+# to run ASAP. Most logic adapted from
+# https://bugs.schedmd.com/show_bug.cgi?id=1008.
 
-echo "Start $(date)" >> ${LOG} 2>&1
-echo "Job ${SLURM_JOB_ID} exitcode ${SLURM_JOB_EXIT_CODE2}" >> ${LOG} 2>&1
-exitcode=$(echo "${SLURM_JOB_EXIT_CODE2}" | awk '{split($0, a, ":"); print a[1]}') >> ${LOG} 2>&1
-if [[ "$exitcode" == "99" ]]; then
-   echo "Found REQUEUE_EXIT_CODE: ${REQUEUE_EXIT_CODE}" >> ${LOG} 2>&1
-   # scontrol requeuehold state=SpecialExit "${SLURM_JOB_ID}" >> ${LOG} 2>&1
-   scontrol requeue "${SLURM_JOB_ID}" >> ${LOG} 2>&1
-   echo $? >> ${LOG} 2>&1
-else
-   echo "Job ${SLURM_JOB_ID} exit all right" >> ${LOG} 2>&1
-fi
-echo "Done $(date)" >> ${LOG} 2>&1
-
-exit 0
+{
+    exitcode=${SLURM_JOB_EXIT_CODE2%:*}
+    echo "$(date)    "$(for v in ${!SLURM_*} exitcode; do echo -n "${v}=${!v} "; done)
+    if [[ "${exitcode}" == "99" ]]; then
+        if [[ -z "${SLURM_ARRAY_JOB_ID}" ]]; then
+            cmd="scontrol requeue ${SLURM_JOB_ID}"
+        else
+            cmd="scontrol requeue ${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}"
+        fi
+        eval "${cmd}"
+        status=$?
+        echo "${cmd} return code: ${status}"
+        exit "${status}"
+    fi
+    echo "Done epilog $(date)"
+} >> /var/log/slurm-llnl/slurmctld_epilog.log 2>&1
