@@ -70,6 +70,14 @@
         group: "{{ main_conf_group }}"
         mode: "0755"
       when: inventory_hostname in groups['controller']
+    - name: copy job_submit.lua
+      copy:
+        src: "{{ slurm_conf_source_dir }}/job_submit.lua"
+        dest: "{{ slurm_conf_dest_dir }}"
+        owner: "{{ main_conf_owner }}"
+        group: "{{ main_conf_group }}"
+        mode: "0644"
+      when: inventory_hostname in groups['controller']
     - name: ensure compute daemons are started
       service:
         name: slurmd
