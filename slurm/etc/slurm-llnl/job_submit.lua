@@ -4,9 +4,9 @@ function dump(o)
     local s = '{ '
     for k, v in pairs(o) do
       if type(k) ~= 'number' then k = '"'..k..'"' end
-      s = s .. '['..k..'] = ' .. dump(v) .. ','
+      s = s .. '['..k..'] = ' .. dump(v) .. ', '
     end
-    return s .. ' }'
+    return s .. '}'
   else
     return tostring(o)
   end
@@ -54,8 +54,8 @@ function table.contains(table, element)
 end
 
 PROJECTS_TO_NON_PROJECT_PARTITIONS = {
-  ["chemistry"] = {"infinite", "scavenge"},
-  ["physics"] = {"scavenge"}
+  ["chemistry"] = {"chemistry", "scavenge", "infinite"},
+  ["physics"] = {"physics", "scavenge"}
 }
 
 function slurm_job_submit(job_desc, part_list, submit_uid)
@@ -64,22 +64,19 @@ function slurm_job_submit(job_desc, part_list, submit_uid)
   local username = job_desc.user_name
 
   if account == nil then
-    slurm.log_info("slurm_job_submit: no account specified by user %s", username)
+    slurm.log_info("slurm_job_submit: no account specified by user %s, valid mapping is %s", username, dump(PROJECTS_TO_NON_PROJECT_PARTITIONS))
     return slurm.ESLURM_INVALID_ACCOUNT
   elseif PROJECTS_TO_NON_PROJECT_PARTITIONS[account] == nil then
-    slurm.log_info("slurm_job_submit: invalid account %s specified by user %s", account, username)
+    slurm.log_info("slurm_job_submit: invalid account %s specified by user %s, valid mapping is %s", account, username, dump(PROJECTS_TO_NON_PROJECT_PARTITIONS))
     return slurm.ESLURM_INVALID_ACCOUNT
   else
-    local possible_non_project_partitions = PROJECTS_TO_NON_PROJECT_PARTITIONS[account]
-    local restricted_partition = "infinite"
-    if table.contains(requested_partitions, restricted_partition) == true then
-      if table.contains(possible_non_project_partitions, restricted_partition) == false then
-        slurm.log_info("slurm_job_submit: account %s cannot access the %s partition", account, restricted_partition)
+    for _, requested_partition in pairs(requested_partitions) do
+      if table.contains(PROJECTS_TO_NON_PROJECT_PARTITIONS[account], requested_partition) == false then
+        slurm.log_info("slurm_job_submit: account %s cannot access the %s partition, mapping is %s", account, requested_partition, dump(PROJECTS_TO_NON_PROJECT_PARTITIONS))
         return slurm.ESLURM_ACCESS_DENIED
       end
     end
   end
-
   return slurm.SUCCESS
 end
 
