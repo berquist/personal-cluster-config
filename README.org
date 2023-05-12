@@ -1,0 +1,76 @@
+* cluster
+
+An overview:
+
+| name        | type           | hardware | storage | operating system |
+|-------------+----------------+----------+---------+------------------|
+| junos       | compute        |       2x |         | Rocky Linux      |
+| sanguinello | login, compute |       1x |         | Rocky Linux      |
+| freedombox  | gateway        |          |         |                  |
+| meyeri      | FS, services   |      ??? | ???     | NixOS            |
+
+** Machines
+
+*** junos
+
+- type: compute
+- hardware:
+- storage:
+- operating system: Rocky Linux
+- services:
+
+*** sanguinello
+
+- type: login, compute
+- hardware:
+- storage:
+- operating system: Rocky Linux
+- services:
+
+*** freedombox
+
+- type: gateway
+- services:
+  - WireGuard
+
+*** meyeri
+
+- type: FS, services
+- hardware:
+- storage:
+- operating system: NixOS
+- services:
+  - nginx
+    - https://nixos.wiki/wiki/Nginx
+  - Docker
+    - https://nixos.wiki/wiki/Docker
+  - Docker Registry
+    - https://docs.docker.com/registry/
+  - Podman
+    - https://nixos.wiki/wiki/Podman
+  - Kubernetes
+  - Jenkins
+  - SLURM job scheduler
+    - https://slurm.schedmd.com/containers.html
+    - https://medium.com/analytics-vidhya/slurm-cluster-with-docker-9f242deee601
+  - Flux job scheduler
+    - http://flux-framework.org/
+  - Subversion
+    - https://discourse.nixos.org/t/how-to-set-up-subversion-http-server/5503/2
+  - GitLab
+    - https://nixos.org/manual/nixos/stable/index.html#module-services-gitlab
+  - Gitea
+    - https://ayats.org/blog/gitea-drone
+  - Transmission
+    - https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/services/torrent/transmission.nix
+    - https://nixos.wiki/wiki/Transmission
+    - https://www.youtube.com/watch?v=6L0H92-JdHA
+  - Plex
+    - https://nixos.wiki/wiki/Plex
+  - Nextcloud
+    - https://nixos.wiki/wiki/Nextcloud
+  - Mastodon
+
+*** scratch
+
+where to put pihole?
